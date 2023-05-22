@@ -1,0 +1,28 @@
+---
+  # If ask_save_location is set to False, all files and folders will be output in the same location as the selected .pbix file.
+  # Creating a subfolder will output files into a timestamped folder with the selected .pbix filename.
+  save_options:
+    page_list:
+      ask_save_location: True
+      create_subfolder: True
+    split_pbix:
+      ask_save_location: True
+      create_subfolder: True
+    report_documentation:
+      ask_save_location: True
+    field_remapping:
+      ask_save_location: True
+      create_subfolder: True
+
+  # Set wireframe generation options.
+  # Merging backgrounds is currently only supported for svg files. Other file types will be ignored.
+  page_wireframe_options:
+    merge_canvas_background: True
+    create_pdf: True
+
+  # Workspaces
+  # Enter workspace names and ID's to allow selection within the application.
+  workspaces:
+    Development: '<WORKSPACE ID>'
+    Testing: '<WORKSPACE ID>'
+    Production: '<WORKSPACE ID>'
