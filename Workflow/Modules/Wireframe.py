@@ -2,8 +2,6 @@ import json
 from Modules import PowerBIReport, Vectorise
 from datetime import datetime
 import os
-import zipfile
-import shutil
 import cairosvg
 from pypdf import PdfWriter
 
@@ -44,39 +42,20 @@ def explode_pbix(pbix_location, save_location, wireframe_settings):
     else:
         save_directory = report_directory
 
-    # Create output folders
-    output_folder = f"{save_directory}/{report_name} Documentation {time}"
-    subfolder_list = ['Formatted Layout', 'Raw Layout', 'Exploded', 'Page Wireframe']
-    for folder in subfolder_list:
-        os.makedirs(f"{output_folder}/{folder}")
-
-    # Create report backup
-    shutil.copy2(pbix_location, output_folder)
-    print("Created report backup")
-
-    # Extract pbix
-    with zipfile.ZipFile(pbix_location, 'r') as archive:
-        save_location_exploded = os.path.abspath(f"{output_folder}/Exploded")
-        archive.extractall(save_location_exploded)
-    print("Extracted report files")
+    # Create output folder
+    output_folder = f"{save_directory}/{report_name} Wireframes {time}"
+    os.makedirs(output_folder)
 
     # Load pbix layout file
     pbix = PowerBIReport.PowerBIReport(pbix_location)
-    page_count = len(pbix.layout['sections'])
     current_page = 1
 
     # Extract report sections
     for page in pbix.layout['sections']:
-        # Clean page display name, so it can be used as a valid file name
-        sanitised_name = page['displayName'].translate({ord(x): ' ' for x in INVALID_CHARACTERS}).strip()
-        name = f'{current_page}-{sanitised_name}'
-        file_name = f'{current_page}-{sanitised_name}.json'
-        save_location_formatted = os.path.abspath(f"{output_folder}/Formatted Layout/{file_name}")
-        save_location_raw = os.path.abspath(f"{output_folder}/Raw Layout/{file_name}")
-
-        # Save raw section export
-        with open(save_location_raw, 'w') as f:
-            json.dump(page, f)
+        # Remove invalid filename characters
+        revised_name = page['displayName'].translate({ord(x): ' ' for x in INVALID_CHARACTERS}).strip()
+        name = f'{current_page}-{revised_name}'
+        current_page += 1
 
         # Expand config section json
         parsed_json = json.loads(page['config'])
@@ -85,16 +64,10 @@ def explode_pbix(pbix_location, save_location, wireframe_settings):
         parsed_json = json.loads(page['filters'])
         page['filters'] = parsed_json
 
-        # Save pretty printed section
-        with open(save_location_formatted, 'w') as f:
-            json.dump(page, f, indent=4)
-        print(f"Parsed page {current_page} of {page_count}\n")
-        current_page += 1
-
         # Assign background filename and location if exists
         try:
             page_background = (page['config']['objects']['background'][0]['properties']
-            ['image']['image']['url']['expr']['ResourcePackageItem']['ItemName'])
+                               ['image']['image']['url']['expr']['ResourcePackageItem']['ItemName'])
             has_background = True
         except KeyError:
             page_background = None
@@ -108,11 +81,11 @@ def explode_pbix(pbix_location, save_location, wireframe_settings):
             background_type = None
 
         # Generate a report page wireframe
-        Vectorise.generate_wireframe(f'{output_folder}/Page Wireframe', page, name, has_background, background_image,
+        Vectorise.generate_wireframe(output_folder, page, name, has_background, background_image,
                                      background_type, merge_images)
 
     print("All pages parsed.")
 
     if create_pdf:
-        svg_location = f'{output_folder}/Page Wireframe'
+        svg_location = output_folder
         convert_to_pdf(svg_location, report_name)
