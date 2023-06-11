@@ -156,26 +156,12 @@ def merge_svg(svg_1, svg_2, save_location):
     print("Merged layout SVG saved.")
 
 
-def generate_report_preview(folder_path, layout_filename, merge):
-    save_path = f'{folder_path}/Page Wireframe'
-    layout_file = open(f'{folder_path}/Formatted Layout/{layout_filename}')
-    json_file = json.load(layout_file)
-    filename = layout_filename[:-5]
+def generate_wireframe(folder_path, layout_file, page_name, has_background, background, background_type, merge):
+    save_path = folder_path
+    json_file = layout_file
+    filename = page_name
     page_width = json_file['width']
     page_height = json_file['height']
-
-    # Assign background filename and location if exists
-    try:
-        page_background = (json_file['config']['objects']['background'][0]['properties']
-                           ['image']['image']['url']['expr']['ResourcePackageItem']['ItemName'])
-        has_background = True
-        background_path = f'{folder_path}/Exploded/Report/StaticResources/RegisteredResources/{page_background}'
-        background_type = os.path.splitext(page_background)[1]
-    except KeyError:
-        page_background = None
-        background_path = None
-        has_background = False
-        background_type = None
 
     # Configure initial output depending on if the report page has a canvas background
     if has_background and merge and background_type == '.svg':
@@ -193,12 +179,12 @@ def generate_report_preview(folder_path, layout_filename, merge):
     # svg page layout & delete temp svg
     if has_background and merge and background_type == '.svg':
         merged_save_path = f'{save_path}/{filename}.svg'
-        merge_svg(background_path, svg_file_path, merged_save_path)
+        merge_svg(background, svg_file_path, merged_save_path)
         os.remove(svg_file_path)
 
     if has_background:
         print(f"The {filename} report page is {page_width} x {page_height}px. Contains {visual_count} visuals,"
-              f" {group_count} groups and uses {page_background} as a canvas background")
+              f" {group_count} groups and uses a canvas background")
     else:
         print(f"The {filename} report page is {page_width} x {page_height}px. Contains {visual_count} visuals,"
               f" {group_count} groups and has no canvas background")
