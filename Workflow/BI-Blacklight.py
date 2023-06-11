@@ -13,6 +13,10 @@ def redirect_output(input_string):
     output.see('end')
 
 
+def clear_output():
+    output.delete(1.0, tkinter.END)
+
+
 def process_thread(func, arguments: list):
     func = threading.Thread(target=func, args=arguments)
     sys.stdout.write = redirect_output
@@ -100,6 +104,7 @@ def workspace_id_menu(workspace_list):
 
 
 def divide_pbix_file(settings):
+    clear_output()
     filetypes = (('Power BI', '*.pbix'),)
     pbix_name = fd.askopenfilename(title='Select the Power BI source file (*.pbix)', filetypes=filetypes)
     if pbix_name == '':
@@ -120,6 +125,7 @@ def divide_pbix_file(settings):
 
 
 def remap_pbix_table(settings):
+    clear_output()
     filetypes = (('Power BI', '*.pbix'),)
     pbix_name = fd.askopenfilename(title='Select the Power BI source file (*.pbix)', filetypes=filetypes)
     if pbix_name == '':
@@ -140,6 +146,7 @@ def remap_pbix_table(settings):
 
 
 def remap_pbix_file(settings):
+    clear_output()
     filetypes = (('Power BI', '*.pbix'),)
     pbix_name = fd.askopenfilename(title='Select the Power BI source file (*.pbix)', filetypes=filetypes)
     if pbix_name == '':
@@ -160,6 +167,7 @@ def remap_pbix_file(settings):
 
 
 def create_report_page_file(settings):
+    clear_output()
     filetypes = (('Power BI', '*.pbix'),)
     filename = fd.askopenfilename(title='Select the Power BI source file (*.pbix)', filetypes=filetypes)
     if filename == '':
@@ -176,6 +184,7 @@ def create_report_page_file(settings):
 
 
 def create_report_wireframe(settings):
+    clear_output()
     filetypes = (('Power BI', '*.pbix'),)
     filename = fd.askopenfilename(title='Select the Power BI source file (*.pbix)', filetypes=filetypes)
     if filename == '':
@@ -192,6 +201,7 @@ def create_report_wireframe(settings):
 
 
 def create_report_documentation(settings):
+    clear_output()
     filetypes = (('Power BI', '*.pbix'),)
     filename = fd.askopenfilename(title='Select the Power BI source file (*.pbix)', filetypes=filetypes)
     if filename == '':
@@ -208,6 +218,7 @@ def create_report_documentation(settings):
 
 
 def publish_multiple(*args):
+    clear_output()
     directory = fd.askdirectory(title='Select Folder Containing .pbix Files', )
     if directory == '':
         return
@@ -223,6 +234,7 @@ def publish_multiple(*args):
 
 
 def publish_single(*args):
+    clear_output()
     filetypes = (('Power BI', '*.pbix'),)
     filename = fd.askopenfilename(title='Select the Power BI source file (*.pbix)', filetypes=filetypes)
     if filename == "":
