@@ -40,10 +40,11 @@ def workspace_id_menu(workspace_list):
     input_window.geometry('500x230')
     input_window.grid_columnconfigure(0, weight=1)
     input_window.grid_rowconfigure(0, weight=1)
+    input_window.after(201, lambda: input_window.iconbitmap("Blacklight-Logo.ico"))
     root.eval(f'tk::PlaceWindow {str(input_window)} center')
 
     # Tabs
-    tabs = customtkinter.CTkTabview(master=input_window, width=380)
+    tabs = customtkinter.CTkTabview(master=input_window, width=380, text_color=('#000000', '#FFFFFF'))
     tabs.grid(column=0, row=0, padx=3, pady=3, sticky='nsew')
 
     # First Tab
@@ -52,6 +53,7 @@ def workspace_id_menu(workspace_list):
 
     option_list = customtkinter.CTkOptionMenu(
         master=tabs.tab('Workspace Selection'),
+        text_color=('#000000', '#FFFFFF'),
         width=450,
         dynamic_resizing=True,
         values=workspace_list
@@ -76,7 +78,9 @@ def workspace_id_menu(workspace_list):
     man_entry = tkinter.StringVar()
     manual_entry = customtkinter.CTkEntry(
         master=tabs.tab('Manual Entry'),
-        placeholder_text='Workspace ID',
+        placeholder_text='Enter Workspace ID',
+        placeholder_text_color=('#000000', '#FFFFFF'),
+        text_color=('#000000', '#FFFFFF'),
         width=450,
         textvariable=man_entry
     )
@@ -227,10 +231,10 @@ def publish_multiple(*args):
     if workspace_id == "":
         return
     elif workspace_id[0] != "":
-        process_thread(PowerShell.publish_single_report, [filename, workspace_id[0]])
+        process_thread(PowerShell.publish_multiple_reports, [directory, workspace_id[0]])
     else:
         wid = SETTINGS['workspaces'][workspace_id[1]]
-        process_thread(PowerShell.publish_single_report, [filename, wid])
+        process_thread(PowerShell.publish_multiple_reports, [directory, wid])
 
 
 def publish_single(*args):
@@ -245,6 +249,8 @@ def publish_single(*args):
         return
     elif workspace_id[0] != "":
         process_thread(PowerShell.publish_single_report, [filename, workspace_id[0]])
+    elif workspace_id[1] == "":
+        return
     else:
         wid = SETTINGS['workspaces'][workspace_id[1]]
         process_thread(PowerShell.publish_single_report, [filename, wid])
@@ -252,7 +258,7 @@ def publish_single(*args):
 
 # Setup GUI
 customtkinter.set_appearance_mode('System')
-customtkinter.set_default_color_theme('blue')
+customtkinter.set_default_color_theme('green')
 
 # create the root window
 root = customtkinter.CTk()
@@ -263,6 +269,7 @@ root.minsize(500, 230)
 root.grid_columnconfigure(0, weight=0)
 root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(1, weight=1)
+root.iconbitmap("Blacklight-Logo.ico")
 
 # Create actions frame
 action_frame = customtkinter.CTkFrame(root, width=240, corner_radius=0)
