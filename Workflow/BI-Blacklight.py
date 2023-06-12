@@ -40,7 +40,7 @@ def workspace_id_menu(workspace_list):
     input_window.geometry('500x230')
     input_window.grid_columnconfigure(0, weight=1)
     input_window.grid_rowconfigure(0, weight=1)
-    input_window.after(201, lambda: input_window.iconbitmap("Blacklight-Logo.ico"))
+    input_window.after(201, lambda: input_window.iconbitmap("Blacklight-B.ico"))
     root.eval(f'tk::PlaceWindow {str(input_window)} center')
 
     # Tabs
@@ -269,7 +269,7 @@ root.minsize(500, 230)
 root.grid_columnconfigure(0, weight=0)
 root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(1, weight=1)
-root.iconbitmap("Blacklight-Logo.ico")
+root.iconbitmap("Blacklight-B.ico")
 
 # Create actions frame
 action_frame = customtkinter.CTkFrame(root, width=240, corner_radius=0)
