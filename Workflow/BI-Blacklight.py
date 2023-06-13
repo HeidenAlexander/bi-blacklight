@@ -3,7 +3,7 @@ import tkinter
 from tkinter import messagebox, filedialog as fd
 import customtkinter
 import threading
-from Modules import SplitPBIX, FieldReference, ListPageNames, PowerShell, Explode, Wireframe, ImportSettings
+from Modules import SplitPBIX, FieldReference, ListPageNames, PowerShell, Explode, ImportSettings
 
 SETTINGS = ImportSettings.import_script_settings('config.yaml')
 
@@ -11,10 +11,6 @@ SETTINGS = ImportSettings.import_script_settings('config.yaml')
 def redirect_output(input_string):
     output.insert(tkinter.END, input_string)
     output.see('end')
-
-
-def clear_output():
-    output.delete(1.0, tkinter.END)
 
 
 def process_thread(func, arguments: list):
@@ -104,7 +100,6 @@ def workspace_id_menu(workspace_list):
 
 
 def divide_pbix_file(settings):
-    clear_output()
     filetypes = (('Power BI', '*.pbix'),)
     pbix_name = fd.askopenfilename(title='Select the Power BI source file (*.pbix)', filetypes=filetypes)
     if pbix_name == '':
@@ -125,7 +120,6 @@ def divide_pbix_file(settings):
 
 
 def remap_pbix_table(settings):
-    clear_output()
     filetypes = (('Power BI', '*.pbix'),)
     pbix_name = fd.askopenfilename(title='Select the Power BI source file (*.pbix)', filetypes=filetypes)
     if pbix_name == '':
@@ -146,7 +140,6 @@ def remap_pbix_table(settings):
 
 
 def remap_pbix_file(settings):
-    clear_output()
     filetypes = (('Power BI', '*.pbix'),)
     pbix_name = fd.askopenfilename(title='Select the Power BI source file (*.pbix)', filetypes=filetypes)
     if pbix_name == '':
@@ -167,7 +160,6 @@ def remap_pbix_file(settings):
 
 
 def create_report_page_file(settings):
-    clear_output()
     filetypes = (('Power BI', '*.pbix'),)
     filename = fd.askopenfilename(title='Select the Power BI source file (*.pbix)', filetypes=filetypes)
     if filename == '':
@@ -183,25 +175,7 @@ def create_report_page_file(settings):
     completion_dialogue()
 
 
-def create_report_wireframe(settings):
-    clear_output()
-    filetypes = (('Power BI', '*.pbix'),)
-    filename = fd.askopenfilename(title='Select the Power BI source file (*.pbix)', filetypes=filetypes)
-    if filename == '':
-        return
-    if settings['save_options']['report_wireframe']['ask_save_location']:
-        save_directory = fd.askdirectory(title='Select Output Location', )
-        if save_directory == '':
-            return
-    else:
-        save_directory = None
-    wireframe_settings = settings['page_wireframe_options']
-    Wireframe.explode_pbix(filename, save_directory, wireframe_settings)
-    completion_dialogue()
-
-
 def create_report_documentation(settings):
-    clear_output()
     filetypes = (('Power BI', '*.pbix'),)
     filename = fd.askopenfilename(title='Select the Power BI source file (*.pbix)', filetypes=filetypes)
     if filename == '':
@@ -218,7 +192,6 @@ def create_report_documentation(settings):
 
 
 def publish_multiple(*args):
-    clear_output()
     directory = fd.askdirectory(title='Select Folder Containing .pbix Files', )
     if directory == '':
         return
@@ -234,7 +207,6 @@ def publish_multiple(*args):
 
 
 def publish_single(*args):
-    clear_output()
     filetypes = (('Power BI', '*.pbix'),)
     filename = fd.askopenfilename(title='Select the Power BI source file (*.pbix)', filetypes=filetypes)
     if filename == "":
@@ -288,34 +260,6 @@ output = customtkinter.CTkTextbox(output_frame, wrap='none', font=('Consolas', 1
 output.configure(spacing2=1)
 output.grid(column=0, padx=3, pady=3, sticky='nsew')
 
-# Report wireframe button
-explode_report_button = customtkinter.CTkButton(
-    master=action_frame,
-    text='Create Report Wireframe',
-    width=230,
-    font=('Segoe UI', 16),
-    text_color=('#000000', '#FFFFFF'),
-    anchor='w',
-    corner_radius=5,
-    fg_color='transparent',
-    command=lambda: process_thread(create_report_wireframe, [SETTINGS])
-)
-explode_report_button.grid(column=0, row=1, padx=10, pady=(2), sticky='w')
-
-# Explode report button
-explode_report_button = customtkinter.CTkButton(
-    master=action_frame,
-    text='Create Report Documentation',
-    width=230,
-    font=('Segoe UI', 16),
-    text_color=('#000000', '#FFFFFF'),
-    anchor='w',
-    corner_radius=5,
-    fg_color='transparent',
-    command=lambda: process_thread(create_report_documentation, [SETTINGS])
-)
-explode_report_button.grid(column=0, row=2, padx=10, pady=(2, 10), sticky='w')
-
 # report info button
 report_info_button = customtkinter.CTkButton(
     master=action_frame,
@@ -328,7 +272,7 @@ report_info_button = customtkinter.CTkButton(
     fg_color='transparent',
     command=lambda: process_thread(create_report_page_file, [SETTINGS])
 )
-report_info_button.grid(column=0, row=3, padx=10, pady=(10, 2), sticky='w')
+report_info_button.grid(column=0, row=1, padx=10, pady=(10, 2), sticky='w')
 
 # split report button
 split_report_button = customtkinter.CTkButton(
@@ -342,7 +286,7 @@ split_report_button = customtkinter.CTkButton(
     fg_color='transparent',
     command=lambda: process_thread(divide_pbix_file, [SETTINGS])
 )
-split_report_button.grid(column=0, row=4, padx=10, pady=(2, 10), sticky='w')
+split_report_button.grid(column=0, row=2, padx=10, pady=(2, 10), sticky='w')
 
 # remap report tables button
 remap_report_table_button = customtkinter.CTkButton(
@@ -356,7 +300,7 @@ remap_report_table_button = customtkinter.CTkButton(
     fg_color='transparent',
     command=lambda: process_thread(remap_pbix_table, [SETTINGS])
 )
-remap_report_table_button.grid(column=0, row=5, padx=10, pady=2, sticky='w')
+remap_report_table_button.grid(column=0, row=3, padx=10, pady=2, sticky='w')
 
 # remap report button
 remap_report_button = customtkinter.CTkButton(
@@ -370,7 +314,21 @@ remap_report_button = customtkinter.CTkButton(
     fg_color='transparent',
     command=lambda: process_thread(remap_pbix_file, [SETTINGS])
 )
-remap_report_button.grid(column=0, row=6, padx=10, pady=(2, 10), sticky='w')
+remap_report_button.grid(column=0, row=4, padx=10, pady=(2, 10), sticky='w')
+
+# Explode report button
+explode_report_button = customtkinter.CTkButton(
+    master=action_frame,
+    text='Create Report Documentation',
+    width=230,
+    font=('Segoe UI', 16),
+    text_color=('#000000', '#FFFFFF'),
+    anchor='w',
+    corner_radius=5,
+    fg_color='transparent',
+    command=lambda: process_thread(create_report_documentation, [SETTINGS])
+)
+explode_report_button.grid(column=0, row=5, padx=10, pady=(2, 10), sticky='w')
 
 # publish single report button
 publish_single_report_button = customtkinter.CTkButton(
@@ -384,7 +342,7 @@ publish_single_report_button = customtkinter.CTkButton(
     fg_color='transparent',
     command=publish_single
 )
-publish_single_report_button.grid(column=0, row=7, padx=10, pady=2, sticky='w')
+publish_single_report_button.grid(column=0, row=6, padx=10, pady=2, sticky='w')
 
 # publish multiple reports button
 publish_multiple_reports_button = customtkinter.CTkButton(
@@ -398,7 +356,7 @@ publish_multiple_reports_button = customtkinter.CTkButton(
     fg_color='transparent',
     command=publish_multiple
 )
-publish_multiple_reports_button.grid(column=0, row=8, padx=10, pady=2, sticky='w')
+publish_multiple_reports_button.grid(column=0, row=7, padx=10, pady=2, sticky='w')
 
 # settings button
 # settings_button = customtkinter.CTkButton(

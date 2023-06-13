@@ -23,7 +23,7 @@ def convert_to_pdf(svg_directory, output_name):
         cairosvg.svg2pdf(url=file_path, write_to=temp_pdf)
         merged_pdf.append(temp_pdf)
         os.remove(temp_pdf)
-        print(f'{current_count} of {file_count} SVG files merged into PDF.')
+        print(f'{current_count} of {file_count} PDF files merged.')
         current_count += 1
 
     merged_pdf.write(f'{svg_directory}/{output_name}.pdf')
@@ -69,7 +69,6 @@ def explode_pbix(pbix_location, save_location, wireframe_settings):
     for page in pbix.layout['sections']:
         # Clean page display name, so it can be used as a valid file name
         sanitised_name = page['displayName'].translate({ord(x): ' ' for x in INVALID_CHARACTERS}).strip()
-        name = f'{current_page}-{sanitised_name}'
         file_name = f'{current_page}-{sanitised_name}.json'
         save_location_formatted = os.path.abspath(f"{output_folder}/Formatted Layout/{file_name}")
         save_location_raw = os.path.abspath(f"{output_folder}/Raw Layout/{file_name}")
@@ -91,25 +90,8 @@ def explode_pbix(pbix_location, save_location, wireframe_settings):
         print(f"Parsed page {current_page} of {page_count}\n")
         current_page += 1
 
-        # Assign background filename and location if exists
-        try:
-            page_background = (page['config']['objects']['background'][0]['properties']
-            ['image']['image']['url']['expr']['ResourcePackageItem']['ItemName'])
-            has_background = True
-        except KeyError:
-            page_background = None
-            has_background = False
-
-        if has_background:
-            background_image = pbix.binary.extract(f'Report/StaticResources/RegisteredResources/{page_background}')
-            background_type = os.path.splitext(page_background)[1]
-        else:
-            background_image = None
-            background_type = None
-
-        # Generate a report page wireframe
-        Vectorise.generate_wireframe(f'{output_folder}/Page Wireframe', page, name, has_background, background_image,
-                                     background_type, merge_images)
+        # Generate a report page preview from pretty printed section json
+        Vectorise.generate_report_preview(output_folder, file_name, merge_images)
 
     print("All pages parsed.")
 

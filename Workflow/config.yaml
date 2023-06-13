@@ -10,8 +10,6 @@
       create_subfolder: True
     report_documentation:
       ask_save_location: True
-    report_wireframe:
-      ask_save_location: True
     field_remapping:
       ask_save_location: True
       create_subfolder: True
