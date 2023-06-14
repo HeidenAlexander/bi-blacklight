@@ -18,50 +18,97 @@ function Create-DestinationFolder {
     }
 }
 
-# Get the current directory as the source folder
-$rootFolder = $PSScriptRoot #Split-Path -Path $script:MyInvocation.MyCommand.Path
+# Prompt the user to continue or exit
+$choice = Read-Host "Preparing to install BI-Blacklight into C:\Program Files\BI-Blacklight. Continue? (Y/N)"
 
-# Specify the source items (files or folders) to be copied
-$sourceItems = @(
-    "$rootFolder\Run.bat",
-    "$rootFolder\Report Setup",
-    "$rootFolder\Workflow",
-    "$rootFolder\Install_Packages.bat",
-    "$rootFolder\LICENSE",
-    "$rootFolder\README.md"
-)
+# Convert the choice to uppercase for case-insensitive comparison
+$choice = $choice.ToUpper()
 
-# Specify external tool registration file to copy
-$registrationFile = "$rootFolder\BI-Blacklight.pbitool.json"
+# Check the user's choice
+if ($choice -eq "Y") {
+    Write-Host "Installing..."
 
-# Specify the destination folder where the files will be copied
-$destinationFolder = "C:\Program Files\BI-Blacklight"
-$externalToolsFolder = "C:\Program Files (x86)\Common Files\Microsoft Shared\Power BI Desktop\External Tools"
+    # Get the current directory as the source folder
+    $rootFolder = $PSScriptRoot #Split-Path -Path $script:MyInvocation.MyCommand.Path
 
+    # Specify the source items (files or folders) to be copied
+    $sourceItems = @(
+        "$rootFolder\Run.bat",
+        "$rootFolder\Report Setup",
+        "$rootFolder\Workflow",
+        "$rootFolder\Install_Packages.bat",
+        "$rootFolder\LICENSE",
+        "$rootFolder\README.md"
+    )
 
-# Check if the destination install folder exists and create it if necessary
-Create-DestinationFolder -destinationFolder $destinationFolder
+    # Specify external tool registration file to copy
+    $registrationFile = "$rootFolder\BI-Blacklight.pbitool.json"
 
-# Check if the external tools folder exists and create it if necessary
-Create-DestinationFolder -destinationFolder $externalToolsFolder
+    # Specify the destination folder where the files will be copied
+    $destinationFolder = "C:\Program Files\BI-Blacklight"
+    $externalToolsFolder = "C:\Program Files (x86)\Common Files\Microsoft Shared\Power BI Desktop\External Tools"
 
-# Copy items from the source to the install folder
-$sourceItems | ForEach-Object {
-    $sourceItem = $_
-    $destinationPath = Join-Path -Path $destinationFolder -ChildPath (Split-Path -Path $sourceItem -Leaf)
-    Copy-Item -Path $sourceItem -Destination $destinationPath -Force -Recurse
+    # Check if the destination install folder exists and create it if necessary
+    Create-DestinationFolder -destinationFolder $destinationFolder
+
+    # Check if the external tools folder exists and create it if necessary
+    Create-DestinationFolder -destinationFolder $externalToolsFolder
+
+    # Copy items from the source to the install folder
+    $sourceItems | ForEach-Object {
+        $sourceItem = $_
+        $destinationPath = Join-Path -Path $destinationFolder -ChildPath (Split-Path -Path $sourceItem -Leaf)
+        Copy-Item -Path $sourceItem -Destination $destinationPath -Force -Recurse
+    }
+
+    # Copy external tool registration file to external tools folder
+    Copy-Item -Path $registrationFile -Destination $externalToolsFolder -Force -Recurse
+
+    # Check if the copy operation was successful
+    if ($?) {
+        Write-Host "Files copied successfully."
+    }
+    else {
+        Write-Host "An error occurred while copying files."
+    }
+}
+elseif ($choice -eq "N") {
+    Write-Host "Exiting the script..."
+    exit
+}
+else {
+    Write-Host "Invalid choice. Exiting the script..."
+    exit
+}
+# Prompt the user to install Python packages or exit.
+$choice = Read-Host "Do you want to install required Python packages? (Y/N)"
+$choice = $choice.ToUpper()
+
+# Check the user's choice
+if ($choice -eq "Y") {
+    Write-Host "Continuing with the script..."
+
+    Write-Host "Installing required Python packages."
+
+    $batchFilePath = "C:\Program Files\BI-Blacklight\Install_Packages.bat"
+    $process = Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$batchFilePath`"" -PassThru
+
+    # Wait for the batch file to finish executing
+    $process.WaitForExit()
+
+    # Check the exit code of the batch file
+    $exitCode = $process.ExitCode
+
+    # Display the exit code
+    Write-Host "Batch file exit code: $exitCode"
+}
+elseif ($choice -eq "N") {
+    Write-Host "Exiting the script..."
+    exit
+}
+else {
+    Write-Host "Invalid choice. Exiting the script..."
+    exit
 }
 
-# Copy external tool registration file to external tools folder
-Copy-Item -Path $registrationFile -Destination $externalToolsFolder -Force -Recurse
-
-
-
-# Check if the copy operation was successful
-if ($?) {
-    Write-Host "Files copied successfully."
-} else {
-    Write-Host "An error occurred while copying files."
-}
-
-Read-Host -Prompt "Press Enter to exit"
+Read-Host -Prompt "Completed. Press Enter to exit"
