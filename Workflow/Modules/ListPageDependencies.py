@@ -24,7 +24,7 @@ def list_page_dependencies(file_path, save_location, create_subfolder):
     pbix.export_page_info(report_name, save_directory)
 
 
-def list_parents(save_location, layout_json, svg_width, svg_height, has_canvas_image, background_extension):
+def list_parents(layout_json):
     # Create a list of visuals and groups
     visual_hierarchy = []
     visual_count = 0
