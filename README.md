@@ -9,6 +9,13 @@ https://github.com/stephbruno/Power-BI-Field-Finder
 nathangiusti: who's python script for unpacking and repacking pbix files made me realise this is possible. <br>
 https://github.com/nathangiusti/PowerPy
 
+## Installation
+Run the Install.ps1 PowerShell script to copy files to C:\Program Files\BI-Blacklight. <br> <br>
+The script will request permission to copy files into this location.
+To install required Python packages select "Y" when prompted. <br> <br>
+The install script will also register the application as an external tool in Power BI by copying the BI-Blacklight.pbitool.json file into C:\Program Files (x86)\Common Files\Microsoft Shared\Power BI Desktop\External Tools.
+
+
 ## Utilities available:
 * Generate csv containing report page names and ID's from .pbix file.
 * Split a report into multiple reports based on report_setup.xlsx file configuration.
@@ -38,7 +45,8 @@ https://github.com/nathangiusti/PowerPy
 * Combine multiple .pbix files/pages (potential to allow multiple developers to contribute towards a single Power BI report).
 
 ### Core Packages
-Run the Install_Packages.bat file to automatically retrieve the required python packages using pip.
+If not selected during initial installation, you can run the Install_Packages.bat file located in
+the C:\Program Files\BI-Blacklight folder to automatically retrieve the required python packages using pip.
 ### Requirements:
 
 #### Python 3.11
