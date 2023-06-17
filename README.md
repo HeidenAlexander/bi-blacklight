@@ -17,16 +17,17 @@ The install script will also register the application as an external tool in Pow
 
 
 ## Utilities available:
-* Generate csv containing report page names and ID's from .pbix file.
-* Split a report into multiple reports based on report_setup.xlsx file configuration.
-  * Remove pages.
-  * Reorder pages.
-  * Rename pages.
+* Create report wireframes.
 * Create report documentation:
   * Explode .pbix file.
   * Create formatted json documents for each report page.
   * Create page wireframe SVG images.
   * Create a PDF file containing all wireframes.
+* Generate csv containing report page names and ID's from .pbix file.
+* Split a report into multiple reports based on report_setup.xlsx file configuration.
+  * Remove pages.
+  * Reorder pages.
+  * Rename pages.
 * Publish a single report to a chosen workspace.
 * Publish multiple reports to a chosen workspace.
 
