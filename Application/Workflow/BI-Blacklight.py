@@ -61,6 +61,13 @@ def workspace_id_menu(workspace_list):
     )
     option_list.grid(row=0, column=0, pady=(25, 0))
 
+    instruction_text = customtkinter.CTkLabel(
+        master=tabs.tab('Workspace Selection'),
+        text="Select workspace from dropdown menu",
+        text_color=('#3c3f41', '#a9b7c6')
+    )
+    instruction_text.grid(row=1, column=0, pady=3)
+
     selection_accept_button = customtkinter.CTkButton(
         master=tabs.tab('Workspace Selection'),
         text='Accept and Continue',
@@ -69,7 +76,7 @@ def workspace_id_menu(workspace_list):
         corner_radius=5,
         command=input_window.destroy
     )
-    selection_accept_button.grid(row=1, column=0, pady=50)
+    selection_accept_button.grid(row=2, column=0, pady=50)
 
     # Second Tab
     tabs.add('Manual Entry')
@@ -87,7 +94,7 @@ def workspace_id_menu(workspace_list):
     manual_entry_warning_label = customtkinter.CTkLabel(
         master=tabs.tab('Manual Entry'),
         text='Any value entered here will override a selection in the previous screen',
-        font=('Segoe UI', 12)
+        text_color=('#3c3f41', '#a9b7c6')
     )
     manual_entry_warning_label.grid(row=1, column=0, pady=3)
 
@@ -225,8 +232,9 @@ def publish_multiple(*args):
     if directory == '':
         return
     workspace_list = list(SETTINGS['workspaces'].keys())
+    workspace_list.insert(0, "")
     workspace_id = workspace_id_menu(workspace_list)
-    if workspace_id == "":
+    if workspace_id[0] == "" and workspace_id[1] == "":
         return
     elif workspace_id[0] != "":
         process_thread(PowerShell.publish_multiple_reports, [directory, workspace_id[0]])
@@ -242,8 +250,9 @@ def publish_single(*args):
     if filename == "":
         return
     workspace_list = list(SETTINGS['workspaces'].keys())
+    workspace_list.insert(0, "")
     workspace_id = workspace_id_menu(workspace_list)
-    if workspace_id == "":
+    if workspace_id[0] == "" and workspace_id[1] == "":
         return
     elif workspace_id[0] != "":
         process_thread(PowerShell.publish_single_report, [filename, workspace_id[0]])
