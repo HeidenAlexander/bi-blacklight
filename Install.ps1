@@ -33,16 +33,16 @@ if ($choice -eq "Y") {
 
     # Specify the source items (files or folders) to be copied
     $sourceItems = @(
-        "$rootFolder\Run.bat",
+        "$rootFolder\Application\Run.bat",
         "$rootFolder\Report Setup",
-        "$rootFolder\Workflow",
-        "$rootFolder\Install_Packages.bat",
+        "$rootFolder\Application\Workflow",
+        "$rootFolder\Application\Install_Packages.bat",
         "$rootFolder\LICENSE",
         "$rootFolder\README.md"
     )
 
     # Specify external tool registration file to copy
-    $registrationFile = "$rootFolder\BI-Blacklight.pbitool.json"
+    $registrationFile = "$rootFolder\Application\BI-Blacklight.pbitool.json"
 
     # Specify the destination folder where the files will be copied
     $destinationFolder = "C:\Program Files\BI-Blacklight"
