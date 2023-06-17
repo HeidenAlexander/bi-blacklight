@@ -90,7 +90,7 @@ if ($choice -eq "Y") {
 
     Write-Host "Installing required Python packages."
 
-    $batchFilePath = "C:\Program Files\BI-Blacklight\Install_Packages.bat"
+    $batchFilePath = "C:\Program Files\BI-Blacklight\Application\Install_Packages.bat"
     $process = Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$batchFilePath`"" -PassThru
 
     # Wait for the batch file to finish executing
