@@ -5,6 +5,7 @@ from svgutils.compose import Figure, SVG
 import svgutils.transform as sg
 from Modules import ColourDictionary
 
+os.add_dll_directory(r"C:\Program Files\GTK3-Runtime Win64\bin")
 
 def create_svg_layout(save_location, layout_json, svg_width, svg_height, has_canvas_image, background_extension):
     # Create a list of visuals and groups

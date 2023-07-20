@@ -4,6 +4,35 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 }
 
 # Function to check if the destination folder exists and create it if it doesn't
+function ClearAndCreate-DestinationFolder {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$destinationFolder
+    )
+
+    # Check if the folder exists
+    if (Test-Path -Path $destinationFolder -PathType Container) {
+    # Get all the files and subfolders in the specified folder
+    $items = Get-ChildItem -Path $destinationFolder -Force
+
+    # Delete each file
+    foreach ($item in $items) {
+        if ($item.PSIsContainer) {
+            # Delete subfolders and their contents recursively
+            Remove-Item -Path $item.FullName -Recurse -Force
+        } else {
+            # Delete files
+            Remove-Item -Path $item.FullName -Force
+        }
+    }
+    } else {
+            # Create the destination folder if it doesn't exist
+            New-Item -ItemType Directory -Path $destinationFolder | Out-Null
+            Write-Host "Destination folder created: $destinationFolder"
+    }
+}
+
+# Function to check if the destination folder exists and create it if it doesn't
 function Create-DestinationFolder {
     param (
         [Parameter(Mandatory=$true)]
@@ -48,8 +77,10 @@ if ($choice -eq "Y") {
     $destinationFolder = "C:\Program Files\BI-Blacklight"
     $externalToolsFolder = "C:\Program Files (x86)\Common Files\Microsoft Shared\Power BI Desktop\External Tools"
 
-    # Check if the destination install folder exists and create it if necessary
-    Create-DestinationFolder -destinationFolder $destinationFolder
+
+    # Check if the destination install folder exists and delete contents or create it if necessary
+    ClearAndCreate-DestinationFolder -destinationFolder $destinationFolder
+
 
     # Check if the external tools folder exists and create it if necessary
     Create-DestinationFolder -destinationFolder $externalToolsFolder
