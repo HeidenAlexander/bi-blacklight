@@ -9,9 +9,12 @@ class PowerBIReport:
     def __init__(self, pbix_location: str):
         self.binary = zipfile.ZipFile(pbix_location)
         self.layout = {}
+        self.config_json = {}
         self.pages = []
         self.page_sequence = 0
-        self.expand_report(json.loads(self.binary.read('Report/Layout').decode('utf-16-le')))
+        self.layout_json = json.loads(self.binary.read('Report/Layout').decode('utf-16-le'))
+        self.expand_report(self.layout_json)
+        self.expand_config(self.layout_json)
         try:
             self.connection = (self.binary.read('Connections'))
         except:
@@ -26,16 +29,15 @@ class PowerBIReport:
             self.pages.append(PowerBIReportPage.PowerBIReportPage(self, page))
         self.page_sequence = len(self.pages) - 1
 
-    def expand_bookmarks(self, layout_json):
-        self.layout = layout_json
-        self.bookmarks = []
-        for bookmark in self.layout['config']
+    def expand_config(self, layout_json):
+        self.config_json = json.loads(layout_json['config'])
 
     def create_report(self, save_location: str):
         page_json = []
         for page in self.pages:
             page_json.append(page.get_page_json())
         self.layout['sections'] = page_json
+        self.layout['config'] = self.config_json
 
         with zipfile.ZipFile(save_location, 'w') as zout:
             for item in self.binary.infolist():
@@ -98,6 +100,22 @@ class PowerBIReport:
             else:
                 print(f"Page: {page['displayName']} removed")
         print(f"Page removal complete.\nRemoved {page_count-added_count} pages.\nKept {added_count} pages.\n")
+
+    def remove_bookmarks(self, pages_to_retain: list):
+        # Iterate through report pages
+        for bookmark in self.config_json['bookmarks']:
+            # Check if the current bookmark is used in the current report page
+            if bookmark['name'] not in pages_to_retain:
+                try:
+                    for childBookmark in bookmark['children']:
+                        if childBookmark['name'] not in pages_to_retain:
+                            del childBookmark
+                    if len(bookmark) == 0:
+                        del bookmark
+                except:
+                    del bookmark
+            else:
+                continue
 
     def rename_table(self, table_list):
         table_count = len(table_list)
