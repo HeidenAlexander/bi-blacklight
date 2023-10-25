@@ -26,6 +26,9 @@ class PowerBIReport:
             self.pages.append(PowerBIReportPage.PowerBIReportPage(self, page))
         self.page_sequence = len(self.pages) - 1
 
+    def expand_config(self, layout_json):
+
+
     def create_report(self, save_location: str):
         page_json = []
         for page in self.pages:
