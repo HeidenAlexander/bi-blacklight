@@ -9,9 +9,13 @@ class PowerBIReport:
     def __init__(self, pbix_location: str):
         self.binary = zipfile.ZipFile(pbix_location)
         self.layout = {}
+        self.config_json = {}
         self.pages = []
+        self.bookmarks = []
         self.page_sequence = 0
-        self.expand_report(json.loads(self.binary.read('Report/Layout').decode('utf-16-le')))
+        self.layout_json = json.loads(self.binary.read('Report/Layout').decode('utf-16-le'))
+        self.expand_report(self.layout_json)
+        self.expand_config(self.layout_json)
         try:
             self.connection = (self.binary.read('Connections'))
         except:
@@ -26,8 +30,12 @@ class PowerBIReport:
             self.pages.append(PowerBIReportPage.PowerBIReportPage(self, page))
         self.page_sequence = len(self.pages) - 1
 
+    def expand_config(self, layout_json):
+        self.config_json = json.loads(layout_json['config'])
+
     def create_report(self, save_location: str):
         page_json = []
+        self.layout['config'] = json.dumps(self.config_json)
         for page in self.pages:
             page_json.append(page.get_page_json())
         self.layout['sections'] = page_json
@@ -93,6 +101,22 @@ class PowerBIReport:
             else:
                 print(f"Page: {page['displayName']} removed")
         print(f"Page removal complete.\nRemoved {page_count-added_count} pages.\nKept {added_count} pages.\n")
+
+    def remove_bookmarks(self, pages_to_retain: list):
+        config_bookmarks = copy.deepcopy(self.config_json['bookmarks'])
+        self.config_json['bookmarks'] = []
+        self.bookmarks = []
+        # Iterate through report bookmarks
+        for bookmark in config_bookmarks:
+            # Check if the current bookmark is used in the current report page
+            if 'children' in bookmark.keys():
+                for childBookmark in bookmark['children']:
+                    if childBookmark['explorationState']['activeSection'] in pages_to_retain:
+                        self.bookmarks.append(bookmark)
+                        break
+            elif bookmark['explorationState']['activeSection'] in pages_to_retain:
+                self.bookmarks.append(bookmark)
+        self.config_json['bookmarks'] = self.bookmarks
 
     def rename_table(self, table_list):
         table_count = len(table_list)

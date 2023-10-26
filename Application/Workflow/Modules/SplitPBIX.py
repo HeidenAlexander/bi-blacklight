@@ -26,6 +26,7 @@ def split_pbix(pbix_location, mapping_file, save_location, create_subfolder):
     for sub_report in reports:
         pbix = PowerBIReport.PowerBIReport(pbix_location)
         pbix.remove_other_pages(sub_report['Pages'], sub_report['Page_Name'])
+        pbix.remove_bookmarks(sub_report['Pages'])
         save_path = os.path.join(save_directory, f"{sub_report['Name']}.pbix")
         pbix.create_report(save_path)
         print(f"{current_report} of {report_count} reports processed.")
