@@ -108,8 +108,6 @@ class PowerBIReport:
         self.bookmarks = []
         # Iterate through report bookmarks
         for bookmark in config_bookmarks:
-            name = bookmark['displayName']
-            print(name)
             # Check if the current bookmark is used in the current report page
             if 'children' in bookmark.keys():
                 for childBookmark in bookmark['children']:
