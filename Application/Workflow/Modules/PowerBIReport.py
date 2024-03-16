@@ -22,6 +22,7 @@ class PowerBIReport:
             self.connection = None
 
         print("Power BI file loaded")
+        print(self.binary.infolist())
 
     def expand_report(self, layout_json):
         self.layout = layout_json
@@ -52,6 +53,13 @@ class PowerBIReport:
                     continue
                 elif item.filename == 'Connections':
                     zout.writestr(item, self.connection)
+                # Remove unused resources
+                # elif item.filename.startswith('Report/StaticResources/RegisteredResources/'):
+                #     resource_name = item.filename.replace('Report/StaticResources/RegisteredResources/', '')
+                #     if resource_name in retained_resources:
+                #         zout.writestr(item, self.connection)
+                #     else:
+                #         continue
                 else:
                     zout.writestr(item, self.binary.read(item.filename))
 
