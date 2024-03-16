@@ -6,12 +6,9 @@ def import_report_settings(settings_file):
     wb = pd.ExcelFile(settings_file)
     all_sheets = wb.sheet_names
 
-    # Remove template and system Excel sheets
-    # removal_list = ['_']
-    # for sheet in removal_list:
-    #     sys_sheet_index = all_sheets.index(sheet.startswith(sheet))
-    #     del all_sheets[sys_sheet_index]
+    # Remove Excel sheets starting with an underscore
     all_sheets = [sheet for sheet in all_sheets if not sheet.startswith('_')]
+
     reports = []
     for sheet in all_sheets:
         df = pd.read_excel(settings_file, sheet, header=None)

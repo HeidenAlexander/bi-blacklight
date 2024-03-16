@@ -12,6 +12,7 @@ class PowerBIReport:
         self.config_json = {}
         self.pages = []
         self.bookmarks = []
+        self.resources = []
         self.page_sequence = 0
         self.layout_json = json.loads(self.binary.read('Report/Layout').decode('utf-16-le'))
         self.expand_report(self.layout_json)
@@ -22,7 +23,6 @@ class PowerBIReport:
             self.connection = None
 
         print("Power BI file loaded")
-        print(self.binary.infolist())
 
     def expand_report(self, layout_json):
         self.layout = layout_json
@@ -54,12 +54,15 @@ class PowerBIReport:
                 elif item.filename == 'Connections':
                     zout.writestr(item, self.connection)
                 # Remove unused resources
-                # elif item.filename.startswith('Report/StaticResources/RegisteredResources/'):
-                #     resource_name = item.filename.replace('Report/StaticResources/RegisteredResources/', '')
-                #     if resource_name in retained_resources:
-                #         zout.writestr(item, self.connection)
-                #     else:
-                #         continue
+                elif item.filename.startswith('Report/StaticResources/RegisteredResources/'):
+                    # resource_name = item.filename.replace('Report/StaticResources/RegisteredResources/', '')
+                    # if resource_name in self.resources:
+                    zout.writestr(item, self.binary.read(item.filename))
+                    # else:
+                    #     print(item.filename in self.resources)
+                    #     print(resource_name)
+                    #     print(self.resources)
+                    #     continue
                 else:
                     zout.writestr(item, self.binary.read(item.filename))
 
@@ -75,6 +78,16 @@ class PowerBIReport:
                 writer.writerow([page['displayName'], page['name']])
         print("Finished extracting report information.")
 
+    def required_resources(self, page):
+        resources = []
+        for visual in page.visuals:
+            try:
+                resources.append(visual.visual_json["config"]["singleVisual"]["objects"]["general"][0]["properties"]
+                                  ["imageUrl"]["expr"]["ResourcePackageItem"]["ItemName"])
+            except:
+                continue
+        return resources
+
     def add_retained_page(self, page_json: json):
         page_json = copy.deepcopy(page_json)
         if 'id' in page_json and page_json['name'] != 'ReportSection':
@@ -84,6 +97,7 @@ class PowerBIReport:
         page_json["ordinal"] = self.page_sequence
         new_page = PowerBIReportPage.PowerBIReportPage(self, page_json)
         self.pages.append(new_page)
+        self.resources.append(self.required_resources(new_page))
         return new_page
 
     def remove_other_pages(self, pages_to_retain: list, pages_to_rename: dict):
