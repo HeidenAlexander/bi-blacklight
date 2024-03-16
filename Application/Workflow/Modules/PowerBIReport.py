@@ -55,14 +55,11 @@ class PowerBIReport:
                     zout.writestr(item, self.connection)
                 # Remove unused resources
                 elif item.filename.startswith('Report/StaticResources/RegisteredResources/'):
-                    # resource_name = item.filename.replace('Report/StaticResources/RegisteredResources/', '')
-                    # if resource_name in self.resources:
-                    zout.writestr(item, self.binary.read(item.filename))
-                    # else:
-                    #     print(item.filename in self.resources)
-                    #     print(resource_name)
-                    #     print(self.resources)
-                    #     continue
+                    resource_name = item.filename.replace('Report/StaticResources/RegisteredResources/', '')
+                    if resource_name in self.resources:
+                        zout.writestr(item, self.binary.read(item.filename))
+                    else:
+                        continue
                 else:
                     zout.writestr(item, self.binary.read(item.filename))
 
@@ -97,7 +94,7 @@ class PowerBIReport:
         page_json["ordinal"] = self.page_sequence
         new_page = PowerBIReportPage.PowerBIReportPage(self, page_json)
         self.pages.append(new_page)
-        self.resources.append(self.required_resources(new_page))
+        self.resources.extend(self.required_resources(new_page))
         return new_page
 
     def remove_other_pages(self, pages_to_retain: list, pages_to_rename: dict):
