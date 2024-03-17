@@ -6,11 +6,8 @@ def import_report_settings(settings_file):
     wb = pd.ExcelFile(settings_file)
     all_sheets = wb.sheet_names
 
-    # Remove template and system Excel sheets
-    removal_list = ['_SYSTEM', '_TEMPLATE']
-    for sheet in removal_list:
-        sys_sheet_index = all_sheets.index(sheet)
-        del all_sheets[sys_sheet_index]
+    # Remove Excel sheets starting with an underscore
+    all_sheets = [sheet for sheet in all_sheets if not sheet.startswith('_')]
 
     reports = []
     for sheet in all_sheets:
@@ -25,7 +22,6 @@ def import_report_settings(settings_file):
             else:
                 sub_report['Page_Name'][page_id[2]] = page_id[1]
         reports.append(sub_report)
-    print(reports)
     return reports
 
 
