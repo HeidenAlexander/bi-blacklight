@@ -17,6 +17,7 @@ class PowerBIReport:
         self.layout_json = json.loads(self.binary.read('Report/Layout').decode('utf-16-le'))
         self.expand_report(self.layout_json)
         self.expand_config(self.layout_json)
+        self.resource_items = self.layout['resourcePackages'][0]["resourcePackage"]["items"]
         try:
             self.connection = (self.binary.read('Connections'))
         except:
@@ -83,7 +84,11 @@ class PowerBIReport:
                                   ["imageUrl"]["expr"]["ResourcePackageItem"]["ItemName"])
             except:
                 continue
-        return resources
+        try:
+            resources.append(page.config['objects']['background'][0]['properties']['image']['image']['url']['expr']
+                             ['ResourcePackageItem']['ItemName'])
+        finally:
+            return resources
 
     def add_retained_page(self, page_json: json):
         page_json = copy.deepcopy(page_json)
@@ -96,6 +101,16 @@ class PowerBIReport:
         self.pages.append(new_page)
         self.resources.extend(self.required_resources(new_page))
         return new_page
+
+    def remove_resource_references(self, resources: list):
+        retained_items = []
+        for resource in resources:
+            if resource['name'] in self.resources:
+                retained_items.append(resource)
+            else:
+                continue
+        return retained_items
+
 
     def remove_other_pages(self, pages_to_retain: list, pages_to_rename: dict):
         self.page_sequence = 0
@@ -120,6 +135,9 @@ class PowerBIReport:
             else:
                 print(f"Page: {page['displayName']} removed")
         print(f"Page removal complete.\nRemoved {page_count-added_count} pages.\nKept {added_count} pages.\n")
+        # Remove unused resource references
+        self.layout['resourcePackages'][0]['resourcePackage']['items'] = (
+            self.remove_resource_references(self.resource_items))
 
     def remove_bookmarks(self, pages_to_retain: list):
         config_bookmarks = copy.deepcopy(self.config_json['bookmarks'])
