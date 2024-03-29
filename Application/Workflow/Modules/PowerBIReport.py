@@ -59,6 +59,8 @@ class PowerBIReport:
                     resource_name = item.filename.replace('Report/StaticResources/RegisteredResources/', '')
                     if resource_name in self.resources:
                         zout.writestr(item, self.binary.read(item.filename))
+                    elif resource_name.endswith('.json'):
+                        zout.writestr(item, self.binary.read(item.filename))
                     else:
                         continue
                 else:
@@ -106,6 +108,8 @@ class PowerBIReport:
         retained_items = []
         for resource in resources:
             if resource['name'] in self.resources:
+                retained_items.append(resource)
+            elif resource['name'].endswith('.json'):
                 retained_items.append(resource)
             else:
                 continue
