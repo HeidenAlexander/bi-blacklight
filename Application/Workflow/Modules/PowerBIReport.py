@@ -59,8 +59,8 @@ class PowerBIReport:
                     resource_name = item.filename.replace('Report/StaticResources/RegisteredResources/', '')
                     if resource_name in self.resources:
                         zout.writestr(item, self.binary.read(item.filename))
-                    elif resource_name.endswith('.json'):
-                        zout.writestr(item, self.binary.read(item.filename))
+                    # elif resource_name.endswith('.json'):
+                    #     zout.writestr(item, self.binary.read(item.filename))
                     else:
                         continue
                 else:
@@ -82,14 +82,28 @@ class PowerBIReport:
         resources = []
         for visual in page.visuals:
             try:
-                resources.append(visual.visual_json["config"]["singleVisual"]["objects"]["general"][0]["properties"]
-                                  ["imageUrl"]["expr"]["ResourcePackageItem"]["ItemName"])
-            except:
+                resources.append(visual.visual_json['config']['singleVisual']['objects']['general'][0]['properties']
+                                  ['imageUrl']['expr']['ResourcePackageItem']['ItemName'])
+            except KeyError:
+                pass
+            try:
+                resources.append(visual.visual_json['config']['singleVisual']['objects']['shape'][0]['properties']
+                                  ['map']['geoJson']['content']['expr']['ResourcePackageItem']['ItemName'])
+            except KeyError:
                 continue
         try:
             resources.append(page.config['objects']['background'][0]['properties']['image']['image']['url']['expr']
                              ['ResourcePackageItem']['ItemName'])
+        except KeyError:
+            pass
+
+        try:
+            if self.layout_json['theme'].endswith('.json'):
+                resources.append(self.layout_json['theme'])
+        except KeyError:
+            pass
         finally:
+            print(resources)
             return resources
 
     def add_retained_page(self, page_json: json):
@@ -97,7 +111,7 @@ class PowerBIReport:
         if 'id' in page_json and page_json['name'] != 'ReportSection':
             del page_json['id']
         elif self.page_sequence == 0:
-            page_json["id"] = 0
+            page_json['id'] = 0
         page_json["ordinal"] = self.page_sequence
         new_page = PowerBIReportPage.PowerBIReportPage(self, page_json)
         self.pages.append(new_page)
