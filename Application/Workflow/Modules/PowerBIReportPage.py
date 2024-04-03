@@ -9,6 +9,7 @@ class PowerBIReportPage:
         self.parent = parent
         self.page_json = page_json
         self.visuals = []
+        self.config = json.loads(self.page_json['config'])
         for visual in page_json['visualContainers']:
             self.visuals.append(PowerBIReportVisual.PowerBIReportVisual(self, visual))
 

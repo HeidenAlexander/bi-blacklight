@@ -12,10 +12,12 @@ class PowerBIReport:
         self.config_json = {}
         self.pages = []
         self.bookmarks = []
+        self.resources = []
         self.page_sequence = 0
         self.layout_json = json.loads(self.binary.read('Report/Layout').decode('utf-16-le'))
         self.expand_report(self.layout_json)
         self.expand_config(self.layout_json)
+        self.resource_items = self.layout['resourcePackages'][0]["resourcePackage"]["items"]
         try:
             self.connection = (self.binary.read('Connections'))
         except:
@@ -52,6 +54,15 @@ class PowerBIReport:
                     continue
                 elif item.filename == 'Connections':
                     zout.writestr(item, self.connection)
+                # Remove unused resources
+                elif item.filename.startswith('Report/StaticResources/RegisteredResources/'):
+                    resource_name = item.filename.replace('Report/StaticResources/RegisteredResources/', '')
+                    if resource_name in self.resources:
+                        zout.writestr(item, self.binary.read(item.filename))
+                    # elif resource_name.endswith('.json'):
+                    #     zout.writestr(item, self.binary.read(item.filename))
+                    else:
+                        continue
                 else:
                     zout.writestr(item, self.binary.read(item.filename))
 
@@ -67,16 +78,57 @@ class PowerBIReport:
                 writer.writerow([page['displayName'], page['name']])
         print("Finished extracting report information.")
 
+    def required_resources(self, page):
+        resources = []
+        for visual in page.visuals:
+            try:
+                resources.append(visual.visual_json['config']['singleVisual']['objects']['general'][0]['properties']
+                                  ['imageUrl']['expr']['ResourcePackageItem']['ItemName'])
+            except KeyError:
+                pass
+            try:
+                resources.append(visual.visual_json['config']['singleVisual']['objects']['shape'][0]['properties']
+                                  ['map']['geoJson']['content']['expr']['ResourcePackageItem']['ItemName'])
+            except KeyError:
+                continue
+        try:
+            resources.append(page.config['objects']['background'][0]['properties']['image']['image']['url']['expr']
+                             ['ResourcePackageItem']['ItemName'])
+        except KeyError:
+            pass
+
+        try:
+            if self.layout_json['theme'].endswith('.json'):
+                resources.append(self.layout_json['theme'])
+        except KeyError:
+            pass
+        finally:
+            print(resources)
+            return resources
+
     def add_retained_page(self, page_json: json):
         page_json = copy.deepcopy(page_json)
         if 'id' in page_json and page_json['name'] != 'ReportSection':
             del page_json['id']
         elif self.page_sequence == 0:
-            page_json["id"] = 0
+            page_json['id'] = 0
         page_json["ordinal"] = self.page_sequence
         new_page = PowerBIReportPage.PowerBIReportPage(self, page_json)
         self.pages.append(new_page)
+        self.resources.extend(self.required_resources(new_page))
         return new_page
+
+    def remove_resource_references(self, resources: list):
+        retained_items = []
+        for resource in resources:
+            if resource['name'] in self.resources:
+                retained_items.append(resource)
+            elif resource['name'].endswith('.json'):
+                retained_items.append(resource)
+            else:
+                continue
+        return retained_items
+
 
     def remove_other_pages(self, pages_to_retain: list, pages_to_rename: dict):
         self.page_sequence = 0
@@ -101,6 +153,9 @@ class PowerBIReport:
             else:
                 print(f"Page: {page['displayName']} removed")
         print(f"Page removal complete.\nRemoved {page_count-added_count} pages.\nKept {added_count} pages.\n")
+        # Remove unused resource references
+        self.layout['resourcePackages'][0]['resourcePackage']['items'] = (
+            self.remove_resource_references(self.resource_items))
 
     def remove_bookmarks(self, pages_to_retain: list):
         config_bookmarks = copy.deepcopy(self.config_json['bookmarks'])
